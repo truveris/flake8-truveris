@@ -188,7 +188,9 @@ class CheckTruveris(object):
                         pass
                 else:
                     # found a line that does not end with a comma
-                    if context_uses_commas and not is_comprehension_context:
+                    if (context_uses_commas and
+                            not is_comprehension_context and
+                            not (t.string == ":" and t.type == tokenize.OP)):
                         # should end with a comma, but doesn't
                         error_msg = {
                             'message': 'T812 missing trailing comma',
