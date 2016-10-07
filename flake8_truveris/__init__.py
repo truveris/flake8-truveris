@@ -141,6 +141,8 @@ class CheckTruveris(object):
         is_comprehension_context = False
         opening_bracket = tokens[context_start_index].string
         context_uses_commas = False
+        if opening_bracket != "(":
+            context_uses_commas = True
 
         index = context_start_index + 1
         while index < len(tokens):
@@ -186,7 +188,7 @@ class CheckTruveris(object):
                         pass
                 else:
                     # found a line that does not end with a comma
-                    if context_uses_commas:
+                    if context_uses_commas and not is_comprehension_context:
                         # should end with a comma, but doesn't
                         error_msg = {
                             'message': 'T812 missing trailing comma',
