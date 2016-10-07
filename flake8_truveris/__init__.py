@@ -105,8 +105,6 @@ class CheckTruveris(object):
         trailing_comma_errors = self.get_trailing_comma_errors(file_tokens)
         errors += trailing_comma_errors
 
-        errors = sorted(errors, key=lambda k: k["line"])
-
         for error in trailing_comma_errors:
             yield (
                 error['line'],
@@ -128,7 +126,7 @@ class CheckTruveris(object):
         index = 0
         while index < token_num:
             if tokens[index].string in OPENING_BRACKETS:
-                context_errors, index = self.evaluate_potential_comma_contexts(
+                context_errors, index = self.eval_context_commas(
                     tokens,
                     index,
                 )
@@ -136,47 +134,76 @@ class CheckTruveris(object):
             index += 1
         return errors
 
-    def evaluate_potential_comma_contexts(self, tokens, context_start_index):
+    def eval_context_commas(self, tokens, context_start_index, layer=1):
         errors = []
-        opener = tokens[context_start_index].string
-        closer = CLOSING_BRACKETS[OPENING_BRACKETS.index(opener)]
-        context_uses_commas = False
         context_end_index = None
+        closing_bracket_is_end_of_value = False
+        is_comprehension_context = False
+        opening_bracket = tokens[context_start_index].string
+        context_uses_commas = False
 
         index = context_start_index + 1
-
         while index < len(tokens):
             t = tokens[index]
             if t.string in OPENING_BRACKETS:
-                subcontext_errors, index = self.evaluate_potential_comma_contexts(
+                # if an opening bracket is found, it means there is a context
+                # within this one that must be evaluated independantly
+                subcontext_errors, index = self.eval_context_commas(
                     tokens,
                     index,
+                    layer=(layer + 1),
                 )
                 errors += subcontext_errors
+                # the closing bracket for the nested context should be
+                # evaluated as the end of an entry in the list/tuple/dict
+                closing_bracket_is_end_of_value = True
                 continue
-            elif (
-                t.string == "," and
-                tokens[index + 1].type == tokenize.NL and
-                context_uses_commas is False):
-                # if any value in the data structure ends the line with a
-                # comma, all values should, so start over and make sure.
-                context_uses_commas = True
-                index = context_start_index + 1
-                continue
-            elif (tokens[index + 1].type == tokenize.NL and
-                    context_uses_commas and
-                    t.string != ","):
-                # should end with a comma, but does not
-                error_msg = {
-                    'message': 'T812 missing trailing comma',
-                    'line': t.start_row,
-                    'col': t.end_col,
-                }
-                errors.append(error_msg)
-            elif t.string == closer:
-                # context is closing
-                context_end_index = index
-                break
+            elif t.string in CLOSING_BRACKETS:
+                # found closing bracket for a context
+                if not closing_bracket_is_end_of_value:
+                    # context is closing
+                    context_end_index = index
+                    break
+
+            if t.type == tokenize.NAME and t.string == "for":
+                # this context is some form of comprehension, and shouldn't
+                # have its commas validated
+                is_comprehension_context = True
+
+            if tokens[index + 1].type == tokenize.NL:
+                # this token is the last token on the line
+                if t.string == ",":
+                    # the current token is a comma
+                    if context_uses_commas is False:
+                        # if any value in the data structure ends the line with
+                        # a comma, all values should, so start over and make
+                        # sure
+                        context_uses_commas = True
+                        index = context_start_index + 1
+                        continue
+                    else:
+                        # found a line that properly ends with a comma
+                        pass
+                else:
+                    # found a line that does not end with a comma
+                    if context_uses_commas:
+                        # should end with a comma, but doesn't
+                        error_msg = {
+                            'message': 'T812 missing trailing comma',
+                            'line': t.start_row,
+                            'col': t.end_col,
+                            "layer": layer,
+                        }
+                        errors.append(error_msg)
+                    else:
+                        # doesn't seem like it needs to end with a comma
+                        pass
+            closing_bracket_is_end_of_value = False
             index += 1
+
+        if is_comprehension_context:
+            # shouldn't validate commas in this context, so strip the errors
+            # for it
+            errors = [e for e in errors if e["layer"] != layer]
 
         return errors, context_end_index
