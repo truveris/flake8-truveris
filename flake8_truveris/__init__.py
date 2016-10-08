@@ -168,8 +168,8 @@ class CheckTruveris(object):
                     break
 
             if t.type == tokenize.NAME and t.string == "for":
-                # this context is some form of comprehension, and shouldn't
-                # have its commas validated
+                # this context layer is some form of comprehension, and
+                # shouldn't have its commas validated
                 is_comprehension_context = True
 
             if tokens[index + 1].type == tokenize.NL:
