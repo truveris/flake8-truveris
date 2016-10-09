@@ -142,6 +142,10 @@ class CheckTruveris(object):
         opening_bracket = tokens[context_start_index].string
         context_uses_commas = False
         if opening_bracket != "(":
+            # the only times trailing commas shouldn't be used inside a context
+            # are inside a list/tuple/dict comprehension, an if/elif series of
+            # conditions wrapped in parenthesis, and when a long string is
+            # broken up over multiple lines inside parenthesis
             context_uses_commas = True
 
         index = context_start_index + 1
