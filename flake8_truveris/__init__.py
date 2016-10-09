@@ -175,33 +175,46 @@ class CheckTruveris(object):
             if tokens[index + 1].type == tokenize.NL:
                 # this token is the last token on the line
                 if t.string == ",":
-                    # the current token is a comma
-                    if context_uses_commas is False:
-                        # if any value in the data structure ends the line with
-                        # a comma, all values should, so start over and make
-                        # sure
-                        context_uses_commas = True
-                        index = context_start_index + 1
-                        continue
-                    else:
-                        # found a line that properly ends with a comma
+                    # found a line that properly ends with a comma
+                    if context_uses_commas:
+                        # already known that context should use commas
                         pass
+                    else:
+                        # if any value in the data structure ends the line with
+                        # a comma, all values should
+                        context_uses_commas = True
                 else:
                     # found a line that does not end with a comma
-                    if (context_uses_commas and
-                            not is_comprehension_context and
-                            not (t.string == ":" and t.type == tokenize.OP)):
-                        # should end with a comma, but doesn't
-                        error_msg = {
-                            'message': 'T812 missing trailing comma',
-                            'line': t.start_row,
-                            'col': t.end_col,
-                            "layer": layer,
-                        }
-                        errors.append(error_msg)
+                    if tokens[index + 2].string in CLOSING_BRACKETS:
+                        # this is the last item in the context
+                        if context_uses_commas:
+                            # the last item in the context should have a
+                            # trailing comma
+                            if is_comprehension_context:
+                                # should not be validating trailing commas in
+                                # comprehension context
+                                pass
+                            else:
+                                # should have a trailing comma, but doesn't
+                                error_msg = {
+                                    'message': 'T812 missing trailing comma',
+                                    'line': t.start_row,
+                                    'col': t.end_col,
+                                    "layer": layer,
+                                }
+                                errors.append(error_msg)
+                        else:
+                            # context does not use commas
+                            pass
                     else:
-                        # doesn't seem like it needs to end with a comma
+                        # only check the last entry in the context, as placing
+                        # a comma anywhere else would likely alter how the
+                        # list/tuple/dict gets evaluated
                         pass
+            else:
+                # not the last token on the line
+                pass
+
             closing_bracket_is_end_of_value = False
             index += 1
 
