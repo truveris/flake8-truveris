@@ -140,8 +140,11 @@ class CheckTruveris(object):
         closing_bracket_is_end_of_value = False
         is_comprehension_context = False
         opening_bracket = tokens[context_start_index].string
+        context_prefix = tokens[context_start_index - 1]
         context_uses_commas = False
-        if opening_bracket != "(":
+        if (opening_bracket != "(" or
+                context_prefix.type == tokenize.NAME or
+                context_prefix.string == ")"):
             # the only times trailing commas shouldn't be used inside a context
             # are inside a list/tuple/dict comprehension, and when code is
             # broken up over multipe lines using parenthesis
