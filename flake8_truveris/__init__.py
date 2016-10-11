@@ -140,17 +140,36 @@ class CheckTruveris(object):
         closing_bracket_is_end_of_value = False
         is_comprehension_context = False
         opening_bracket = tokens[context_start_index].string
-        context_prefix = tokens[context_start_index - 1]
-        context_uses_commas = False
-        if (opening_bracket != "(" or
-                context_prefix.type == tokenize.NAME or
-                context_prefix.string == ")"):
-            # the only times trailing commas shouldn't be used inside a context
-            # are inside a list/tuple/dict comprehension, and when code is
-            # broken up over multipe lines using parenthesis
-            context_uses_commas = True
+        context_uses_commas = True
+        if opening_bracket == "(":
+            # might not be just a tuple
+            context_prefix = tokens[context_start_index - 1]
+            context_prefix_prefix = tokens[context_start_index - 2]
+            if context_prefix_prefix.string in ("class", "def"):
+                # class or function/method definition should have trailing
+                # commas in if parent classes/arguments are broken up over
+                # multiple lines
+                pass
+            elif context_prefix.type == tokenize.NAME:
+                # potential method/function call (or )
+                if context_prefix.string in ("if", "elif", "while"):
+                    # context contains condition logic
+                    context_uses_commas = False
+                else:
+                    # a class/method/function is being called, and should have
+                    # trailing commas if broken up over multiple lines
+                    pass
+            elif context_prefix.string in ("]", ")"):
+                # previous expression is evaluating to method/function, and
+                # method/function calls should have trailing commas
+                pass
+            else:
+                # may or may not be a tuple, so don't assume trailing commas
+                # should be used unless they are found
+                context_uses_commas = False
 
         index = context_start_index + 1
+        previous_token = tokens[index - 1]
         while index < len(tokens):
             t = tokens[index]
             if t.string in OPENING_BRACKETS:
@@ -200,6 +219,10 @@ class CheckTruveris(object):
                                 # should not be validating trailing commas in
                                 # comprehension context
                                 pass
+                            elif previous_token.string in ("*", "**"):
+                                # expansion can't be followed by a trailing
+                                # comma
+                                pass
                             else:
                                 # should have a trailing comma, but doesn't
                                 error_msg = {
@@ -223,6 +246,7 @@ class CheckTruveris(object):
 
             closing_bracket_is_end_of_value = False
             index += 1
+            previous_token = t
 
         if is_comprehension_context:
             # shouldn't validate commas in this context, so strip the errors
