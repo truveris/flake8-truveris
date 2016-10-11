@@ -25,6 +25,31 @@ CLOSING_BRACKETS = [
     ')',
 ]
 
+# all the Python keywords that could prefix a parenthesis context, where
+# trailing commas are either not allowed, or would change what the context gets
+# evaluated as if a trailing comma were present
+context_prefix_keywords = (
+    "and",
+    "as",
+    "assert",
+    "del"
+    "elif",
+    "exec",
+    "for",
+    "if",
+    "in",
+    "is",
+    "lambda",
+    "not",
+    "or",
+    "print",
+    "raise",
+    "return",
+    "while",
+    "with",
+    "yield",
+)
+
 
 class Token(object):
     '''Python 2 and 3 compatible token'''
@@ -144,28 +169,27 @@ class CheckTruveris(object):
         if opening_bracket == "(":
             # might not be just a tuple
             context_prefix = tokens[context_start_index - 1]
-            context_prefix_prefix = tokens[context_start_index - 2]
-            if context_prefix_prefix.string in ("class", "def"):
-                # class or function/method definition should have trailing
-                # commas in if parent classes/arguments are broken up over
-                # multiple lines
-                pass
-            elif context_prefix.type == tokenize.NAME:
-                # potential method/function call (or )
-                if context_prefix.string in ("if", "elif", "while"):
-                    # context contains condition logic
+            if context_prefix.type == tokenize.NAME:
+                # might be a class/method/function call or definition
+                if context_prefix.string in context_prefix_keywords:
+                    # definitely not a class/method/function call or
+                    # definition, so check for commas in context before trying
+                    # to enforce a trailing comma to make sure the context is
+                    # evaluated as originally written
                     context_uses_commas = False
                 else:
-                    # a class/method/function is being called, and should have
-                    # trailing commas if broken up over multiple lines
+                    # definitely a class/method/function call or definition, so
+                    # trailing commas should definitely be used
                     pass
             elif context_prefix.string in ("]", ")"):
                 # previous expression is evaluating to method/function, and
                 # method/function calls should have trailing commas
                 pass
             else:
-                # may or may not be a tuple, so don't assume trailing commas
-                # should be used unless they are found
+                # definitely not a class/method/function call or
+                # definition, so check for commas in context before trying to
+                # enforce a trailing comma to make sure the context is
+                # evaluated as originally written
                 context_uses_commas = False
 
         index = context_start_index + 1
@@ -197,17 +221,15 @@ class CheckTruveris(object):
                 # shouldn't have its commas validated
                 is_comprehension_context = True
 
+            if t.string == ",":
+                # found a comma, so enforce trailing comma usage
+                context_uses_commas = True
+
             if tokens[index + 1].type == tokenize.NL:
                 # this token is the last token on the line
                 if t.string == ",":
                     # found a line that properly ends with a comma
-                    if context_uses_commas:
-                        # already known that context should use commas
-                        pass
-                    else:
-                        # if any value in the data structure ends the line with
-                        # a comma, all values should
-                        context_uses_commas = True
+                    pass
                 else:
                     # found a line that does not end with a comma
                     if tokens[index + 2].string in CLOSING_BRACKETS:
