@@ -21,5 +21,8 @@ setup(
             'T = flake8_truveris:CheckTruveris',
         ],
     },
+    classifiers=[
+        "Framework :: Flake8",
+    ],
     license='MIT',
 )
