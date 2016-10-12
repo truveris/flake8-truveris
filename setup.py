@@ -4,8 +4,6 @@ requires = [
     "flake8",
 ]
 
-flake8_entry_point = "flake8.extension"
-
 setup(
     name="flake8_truveris",
     version="0.1.0",
@@ -19,7 +17,7 @@ setup(
     install_requires=requires,
     packages=['flake8_truveris'],
     entry_points={
-        flake8_entry_point: [
+        "flake8.extension": [
             'T = flake8_truveris:CheckTruveris',
         ],
     },
