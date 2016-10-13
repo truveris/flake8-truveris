@@ -18,7 +18,7 @@ setup(
     download_url=(
         "https://github.com/truveris/flake8-truveris/tarball/{}"
         .format(__pkg_version__)
-    )
+    ),
     install_requires=requires,
     packages=['flake8_truveris'],
     entry_points={
