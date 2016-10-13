@@ -6,7 +6,7 @@ requires = [
 
 setup(
     name="flake8_truveris",
-    version="0.1.0",
+    version="0.1",
     description=(
         "Flake8 extension for checking Python "
         "code against Truveris's code style guide"
