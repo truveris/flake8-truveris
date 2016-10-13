@@ -12,7 +12,7 @@ Once installed, `flake8` will automatically start using it whenever it's run.
 
 All `flake8-truveris` error codes are prefixed with a `T`, so you can adjust your `flake8` config file accordingly depending on your needs.
 
-To see all the error codes for `flake8-truveris`, you can go [here](docs/error-codes.md).
+The full list of error codes for `flake8-truveris` can be found [here](docs/error-codes.md).
 
 ## Formatting
 
