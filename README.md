@@ -10,7 +10,7 @@ pip install flake8-truveris
 
 Once installed, `flake8` will automatically start using it whenever it's run.
 
-All `flake8-truveris` error codes are prefixed with a `T`, so you can adjust your `flake8` config file accordingly depending on your needs.
+All `flake8-truveris` error codes are prefixed with a `T`, so you can adjust your `flake8` config accordingly depending on your needs.
 
 The full list of error codes for `flake8-truveris` can be found [here](docs/error-codes.md).
 
