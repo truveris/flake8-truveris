@@ -20,6 +20,9 @@ setup(
         "flake8.extension": [
             'T = flake8_truveris:CheckTruveris',
         ],
+        "flake8.report": [
+            'T = flake8_truveris:FormatTruveris',
+        ],
     },
     classifiers=[
         "Framework :: Flake8",

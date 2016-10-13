@@ -1,4 +1,5 @@
 import tokenize
+from flake8.formatting import base
 
 try:
     from flake8.engine import pep8
@@ -276,3 +277,49 @@ class CheckTruveris(object):
             errors = [e for e in errors if e["layer"] != layer]
 
         return errors, context_end_index
+
+
+class FormatTruveris(base.BaseFormatter):
+
+    error_format = "%(path)s:%(row)d:%(col)d: %(code)s %(text)s"
+
+    def format(self, error):
+        return self.error_format % {
+            "code": error.code,
+            "text": error.text,
+            "path": error.filename,
+            "row": error.line_number,
+            "col": error.column_number,
+        }
+
+    def handle(self, error):
+        """Handle an error reported by Flake8.
+        This defaults to calling :meth:`format`, :meth:`show_source`, and
+        then :meth:`write`. To extend how errors are handled, override this
+        method.
+        :param error:
+            This will be an instance of :class:`~flake8.style_guide.Error`.
+        :type error:
+            flake8.style_guide.Error
+        """
+        line = self.format(error)
+        source = self.show_source(error)
+        self.write(line, source)
+        if error.code == "T812":
+            # column and line numbers are 1-indexed, so get the actual column
+            # and line numbers
+            comma_insert_point = error.column_number - 1
+            line_number = error.line_number - 1
+
+            # add a comma to the problematic line
+            with open(error.filename, 'r') as file:
+                # read a list of lines into data
+                data = file.readlines()
+
+            data[line_number] = "{},{}".format(
+                data[line_number][:comma_insert_point],
+                data[line_number][comma_insert_point:],
+            )
+
+            with open(error.filename, 'w') as file:
+                file.writelines(data)
