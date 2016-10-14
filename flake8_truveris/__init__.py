@@ -12,8 +12,6 @@ except ImportError:
     readlines = pycodestyle.readlines
 
 
-__version__ = '0.1.0'
-
 OPENING_BRACKETS = [
     '[',
     '{',
@@ -85,7 +83,6 @@ class Token(object):
 class CheckTruveris(object):
 
     name = 'flake8-truveris'
-    version = __version__
 
     def __init__(self, tree, filename='(none)', builtins=None):
         self.tree = tree
