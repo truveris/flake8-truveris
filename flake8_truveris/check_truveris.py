@@ -12,6 +12,7 @@ except ImportError:
 
 from flake8_truveris.token import Token
 from flake8_truveris.trailing_commas import get_trailing_comma_errors
+from flake8_truveris.inline_comments import get_inline_comment_errors
 
 
 class CheckTruveris(object):
@@ -60,13 +61,13 @@ class CheckTruveris(object):
         file_tokens = self.get_qa_file_tokens()
         errors = []
 
-        trailing_comma_errors = get_trailing_comma_errors(file_tokens)
-        errors += trailing_comma_errors
+        errors += get_trailing_comma_errors(file_tokens)
+        errors += get_inline_comment_errors(file_tokens)
 
-        for error in trailing_comma_errors:
+        for e in errors:
             yield (
-                error['line'],
-                error['col'],
-                error['message'],
+                e['line'],
+                e['col'],
+                e['message'],
                 type(self),
             )
