@@ -3,7 +3,7 @@ from setuptools import setup
 requires = [
     "flake8",
 ]
-__pkg_version__ = "0.1"
+__pkg_version__ = "0.2"
 
 setup(
     name="flake8_truveris",
@@ -23,10 +23,10 @@ setup(
     packages=['flake8_truveris'],
     entry_points={
         "flake8.extension": [
-            'T = flake8_truveris:CheckTruveris',
+            'T = flake8_truveris.check_truveris:CheckTruveris',
         ],
         "flake8.report": [
-            'T = flake8_truveris:FormatTruveris',
+            'T = flake8_truveris.format_truveris:FormatTruveris',
         ],
     },
     classifiers=[
