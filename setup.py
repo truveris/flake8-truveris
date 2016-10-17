@@ -3,7 +3,7 @@ from setuptools import setup
 requires = [
     "flake8",
 ]
-__pkg_version__ = "0.3.2"
+__pkg_version__ = "0.3.3"
 
 setup(
     name="flake8_truveris",
