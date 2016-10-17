@@ -180,11 +180,11 @@ def eval_context_commas(tokens, context_start_index, layer=1):
     return errors, context_end_index
 
 
-def fix(file_lines, error):
+def fix(file_lines, error, line_adjustment):
     # column and line numbers are 1-indexed, so get the actual column
     # and line numbers
     comma_insert_point = error.column_number - 1
-    line_number = error.line_number - 1
+    line_number = (error.line_number - 1) + line_adjustment
     # add a comma to the problematic line
     file_lines[line_number] = "{},{}".format(
         file_lines[line_number][:comma_insert_point],

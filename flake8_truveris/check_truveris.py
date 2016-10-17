@@ -64,6 +64,9 @@ class CheckTruveris(object):
         errors += get_trailing_comma_errors(file_tokens)
         errors += get_inline_comment_errors(file_tokens)
 
+        # sort the errors by line numbers
+        errors.sort(key=lambda x: x["line"])
+
         for e in errors:
             yield (
                 e["line"],

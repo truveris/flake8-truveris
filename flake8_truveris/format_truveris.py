@@ -6,14 +6,22 @@ from flake8_truveris import (
 )
 
 error_modules = {
-    # "T568": inline_comments,
-    "T812": trailing_commas,
+    "T568": {
+        "module": inline_comments,
+        "line_adjustment": 1,
+    },
+    "T812": {
+        "module": trailing_commas,
+        "line_adjustment": 0,
+    },
 }
 
 
 class FormatTruveris(base.BaseFormatter):
 
     error_format = "%(path)s:%(row)d:%(col)d: %(code)s %(text)s"
+    previous_filename = None
+    line_adjustment = 0
 
     def format(self, error):
         return self.error_format % {
@@ -25,6 +33,10 @@ class FormatTruveris(base.BaseFormatter):
         }
 
     def handle(self, error):
+        if self.previous_filename != error.filename:
+            self.line_adjustment = 0
+            self.previous_filename = error.filename
+
         line = self.format(error)
         source = self.show_source(error)
         self.write(line, source)
@@ -36,7 +48,13 @@ class FormatTruveris(base.BaseFormatter):
                 data = file.readlines()
 
             if error.code in error_modules:
-                data = error_modules[error.code].fix(data, error)
+                data = error_modules[error.code]["module"].fix(
+                    data,
+                    error,
+                    self.line_adjustment,
+                )
+                line_adjustment = error_modules[error.code]["line_adjustment"]
+                self.line_adjustment += line_adjustment
 
                 with open(error.filename, "w") as file:
                     file.writelines(data)

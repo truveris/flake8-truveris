@@ -24,11 +24,11 @@ def get_inline_comment_errors(file_tokens):
     return errors
 
 
-def fix(file_lines, error):
+def fix(file_lines, error, line_adjustment):
     # column and line numbers are 1-indexed, so get the actual column
     # and line numbers
     comment_start_point = error.column_number - 1
-    line_number = error.line_number - 1
+    line_number = (error.line_number - 1) + line_adjustment
 
     full_line = file_lines[line_number]
     comment = full_line[comment_start_point:]
