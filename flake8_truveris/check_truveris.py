@@ -17,15 +17,15 @@ from flake8_truveris.inline_comments import get_inline_comment_errors
 
 class CheckTruveris(object):
 
-    name = 'flake8-truveris'
+    name = "flake8-truveris"
     version = "0.2"
 
-    def __init__(self, tree, filename='(none)', builtins=None):
+    def __init__(self, tree, filename="(none)", builtins=None):
         self.tree = tree
         self.filename = filename
 
     def get_file_contents(self):
-        if self.filename in ('stdin', '-', None):
+        if self.filename in ("stdin", "-", None):
             return stdin_get_value().splitlines(True)
         else:
             return readlines(self.filename)
@@ -42,7 +42,7 @@ class CheckTruveris(object):
             token.start_row
             for token in file_tokens
             if token.type == tokenize.COMMENT and
-            token.string.endswith('noqa')
+            token.string.endswith("noqa")
         ]
 
     def get_qa_file_tokens(self):
@@ -66,8 +66,8 @@ class CheckTruveris(object):
 
         for e in errors:
             yield (
-                e['line'],
-                e['col'],
-                e['message'],
+                e["line"],
+                e["col"],
+                e["message"],
                 type(self),
             )

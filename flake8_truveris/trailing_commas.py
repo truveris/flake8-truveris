@@ -2,15 +2,15 @@ import tokenize
 
 
 OPENING_BRACKETS = [
-    '[',
-    '{',
-    '(',
+    "[",
+    "{",
+    "(",
 ]
 
 CLOSING_BRACKETS = [
-    ']',
-    '}',
-    ')',
+    "]",
+    "}",
+    ")",
 ]
 
 # all the Python keywords that could prefix a parenthesis context, where
@@ -150,9 +150,9 @@ def eval_context_commas(tokens, context_start_index, layer=1):
                         else:
                             # should have a trailing comma, but doesn't
                             error_msg = {
-                                'message': 'T812 missing trailing comma',
-                                'line': t.start_row,
-                                'col': t.end_col,
+                                "message": "T812 missing trailing comma",
+                                "line": t.start_row,
+                                "col": t.end_col,
                                 "layer": layer,
                             }
                             errors.append(error_msg)
