@@ -6,7 +6,7 @@ from flake8_truveris import (
 )
 
 error_modules = {
-    "T568": inline_comments,
+    # "T568": inline_comments,
     "T812": trailing_commas,
 }
 
