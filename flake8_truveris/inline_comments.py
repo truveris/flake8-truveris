@@ -4,7 +4,8 @@ import tokenize
 def get_inline_comment_errors(file_tokens):
     errors = []
     token_num = len(file_tokens)
-    index = 0
+    # first token in file can't be inline comment
+    index = 1
     while index < token_num:
         token = file_tokens[index]
         if token.type == tokenize.COMMENT:
