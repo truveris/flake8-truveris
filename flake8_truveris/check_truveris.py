@@ -18,7 +18,7 @@ from flake8_truveris.inline_comments import get_inline_comment_errors
 class CheckTruveris(object):
 
     name = "flake8-truveris"
-    version = "0.2"
+    version = "0.3"
 
     def __init__(self, tree, filename="(none)", builtins=None):
         self.tree = tree
