@@ -1,10 +1,12 @@
 from flake8.formatting import base
 
 from flake8_truveris import (
+    inline_comments,
     trailing_commas,
 )
 
 error_modules = {
+    "T568": inline_comments,
     "T812": trailing_commas,
 }
 
