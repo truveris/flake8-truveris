@@ -45,6 +45,14 @@ class CheckTruveris(object):
             token.string.endswith("noqa")
         ]
 
+    def get_nocover_line_numbers(self, file_tokens):
+        return [
+            token.start_row
+            for token in file_tokens
+            if token.type == tokenize.COMMENT and
+            token.string.endswith("pragma: no cover")
+        ]
+
     def get_qa_file_tokens(self):
         file_contents = self.get_file_contents()
         file_tokens = self.get_file_tokens(file_contents)
